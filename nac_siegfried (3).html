@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NAC · Mercado vs Competidores · Siegfried</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --sie:       #8B1C1C;
+    --sie-light: #b02626;
+    --sie-pale:  #f9f0f0;
+    --nav-bg:    #111318;
+    --bg:        #f2f3f5;
+    --surface:   #ffffff;
+    --border:    #e2e4e8;
+    --border2:   #d0d3d9;
+    --text:      #1a1d23;
+    --muted:     #6b7280;
+    --muted2:    #9ca3af;
+    --pill-bg:   #eef0f3;
+    --pill-act:  #8B1C1C;
+    --green:     #16a34a;
+    --blue:      #2563eb;
+    --amber:     #d97706;
+    --purple:    #7c3aed;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  /* ── TOP NAV ───────────────────────────────────────── */
+  .topnav {
+    background: var(--nav-bg);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 28px;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid #2a2d35;
+  }
+  .logo {
+    font-weight: 800;
+    font-size: 14px;
+    color: #fff;
+    letter-spacing: .06em;
+    margin-right: 32px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .logo-dot { width: 8px; height: 8px; background: var(--sie); border-radius: 50%; }
+  .nav-tabs { display: flex; align-items: center; gap: 2px; flex: 1; }
+  .nav-tab {
+    color: #9ca3af;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 0 14px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color .15s, border-color .15s;
+    white-space: nowrap;
+  }
+  .nav-tab:hover { color: #e5e7eb; }
+  .nav-tab.active { color: #fff; border-bottom-color: var(--sie); }
+  .nav-tag {
+    background: var(--sie);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: .04em;
+    margin-left: 8px;
+  }
+  .hub-link { color: #6b7280; font-size: 12px; margin-left: auto; cursor: pointer; white-space: nowrap; }
+  .hub-link:hover { color: #d1d5db; }
+
+  /* ── PAGE HEADER ───────────────────────────────────── */
+  .page-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 28px 0;
+  }
+  .breadcrumb {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .breadcrumb span { color: var(--sie); }
+  .page-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.1;
+    letter-spacing: -.3px;
+  }
+  .page-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    margin-bottom: 16px;
+  }
+  .segment-tabs { display: flex; gap: 0; border-top: 1px solid var(--border); margin-top: 4px; }
+  .seg-tab {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 10px 18px;
+    cursor: pointer;
+    color: var(--muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .seg-tab:hover { color: var(--text); }
+  .seg-tab.active { color: var(--sie); border-bottom-color: var(--sie); }
+
+  /* ── CONTENT WRAPPER ───────────────────────────────── */
+  .content { max-width: 1360px; margin: 0 auto; padding: 20px 28px 48px; }
+
+  /* ── YEAR FILTER BAR ───────────────────────────────── */
+  .filter-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .filter-lbl {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-right: 4px;
+  }
+  .yr-btn {
+    background: var(--pill-bg);
+    border: 1px solid transparent;
+    color: var(--muted);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+  }
+  .yr-btn:hover { border-color: var(--border2); color: var(--text); }
+  .yr-btn.active { background: var(--sie); color: #fff; border-color: var(--sie); }
+  .yr-btn.all-btn { font-size: 11px; letter-spacing: .05em; }
+
+  /* ── KPI CARDS ──────────────────────────────────────── */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+  @media(max-width:900px){ .kpi-row { grid-template-columns: 1fr 1fr; } }
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px 14px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp .4s ease both;
+  }
+  .kpi-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .kpi-card.c1::after { background: var(--sie); }
+  .kpi-card.c2::after { background: var(--blue); }
+  .kpi-card.c3::after { background: var(--green); }
+  .kpi-card.c4::after { background: var(--purple); }
+  .kpi-label {
+    font-size: 9px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+  .kpi-value { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+  .kpi-card.c1 .kpi-value { color: var(--sie); }
+  .kpi-card.c2 .kpi-value { color: var(--blue); }
+  .kpi-card.c3 .kpi-value { color: var(--green); }
+  .kpi-card.c4 .kpi-value { color: var(--purple); }
+  .kpi-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .kpi-sub { font-size: 10px; color: var(--muted2); margin-top: 6px; }
+
+  /* ── COMPETITOR FILTER ─────────────────────────────── */
+  .comp-filter-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    animation: fadeUp .4s ease .1s both;
+    position: sticky;
+    top: 48px;
+    z-index: 90;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  }
+  .comp-filter-header {
+    font-size: 9px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .comp-filter-header span { color: var(--muted2); font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 11px; margin-left: 6px; }
+  .comp-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .comp-pill {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--pill-bg);
+    border: 1px solid transparent;
+    border-radius: 20px;
+    padding: 4px 11px 4px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    cursor: pointer;
+    transition: all .15s;
+    user-select: none;
+  }
+  .comp-pill:hover { border-color: var(--border2); }
+  .comp-pill.off { opacity: .35; }
+  .comp-pill .cdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+  /* ── CHARTS GRID ────────────────────────────────────── */
+  .charts-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 20px 16px;
+    animation: fadeUp .4s ease both;
+  }
+  .chart-card:nth-child(1){animation-delay:.12s}
+  .chart-card:nth-child(2){animation-delay:.18s}
+  .chart-card:nth-child(3){animation-delay:.24s}
+  .chart-card:nth-child(4){animation-delay:.30s}
+
+  .chart-header { margin-bottom: 14px; }
+  .chart-num {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--sie); color: #fff;
+    font-size: 10px; font-weight: 800;
+    margin-right: 8px; vertical-align: middle;
+  }
+  .chart-title {
+    font-size: 14px; font-weight: 700; color: var(--text); display: inline;
+  }
+  .chart-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .chart-wrap { position: relative; height: 380px; }
+  .chart-wrap.ms { height: 320px; }
+
+  /* ── SECTION DIVIDER ────────────────────────────────── */
+  .section-div {
+    display: flex; align-items: center; gap: 12px;
+    margin: 24px 0 16px;
+    font-size: 10px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .section-div::before, .section-div::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+  }
+
+  .source { font-size: 10px; color: var(--muted2); text-align: right; margin-top: 20px; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <div class="logo"><div class="logo-dot"></div>SIEGFRIED</div>
+  <div class="nav-tabs">
+    <div class="nav-tab">Resumen</div>
+    <div class="nav-tab">Venta Interna</div>
+    <div class="nav-tab active">Mercado IQVIA</div>
+    <div class="nav-tab">Recetas</div>
+    <div class="nav-tab">Stock</div>
+    <div class="nav-tab">Cobertura</div>
+    <div class="nav-tab">Precios</div>
+    <div class="nav-tag">NAC</div>
+  </div>
+  <div class="hub-link">— Hub</div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="breadcrumb"><span>SIEGFRIED</span> · N-ACETILCISTEÍNA · INTELIGENCIA DE MERCADOS</div>
+  <div class="page-title">NAC · Mercado vs Competidores</div>
+  <div class="page-sub">Market Share por Segmento · Producto · IQVIA 2022–2025</div>
+  <div class="segment-tabs">
+    <div class="seg-tab active" data-seg="rx" onclick="switchSeg('rx')">Bajo Receta (ETICO)</div>
+    <div class="seg-tab" data-seg="vl" onclick="switchSeg('vl')">Venta Libre (VL)</div>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- KPI CARDS -->
+  <div class="kpi-row" id="kpi-row"></div>
+
+  <!-- COMPETITOR FILTER -->
+  <div class="comp-filter-card">
+    <div class="comp-filter-header">Filtro Global · Competidores <span>Clickeá para mostrar / ocultar</span></div>
+    <div class="comp-pills" id="comp-pills"></div>
+    <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border); display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+      <span class="filter-lbl">Año:</span>
+      <button class="yr-btn active" data-year="2022">2022</button>
+      <button class="yr-btn active" data-year="2023">2023</button>
+      <button class="yr-btn active" data-year="2024">2024</button>
+      <button class="yr-btn active" data-year="2025">2025</button>
+      <button class="yr-btn all-btn" id="btn-all">Todos</button>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-grid">
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-num">01</span>
+        <span class="chart-title">Unidades Mensuales</span>
+        <div class="chart-sub" id="sub-u">Siegfried · Nacional</div>
+      </div>
+      <div class="chart-wrap"><canvas id="chartU"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-num">02</span>
+        <span class="chart-title">MS% Mensual · Competidores</span>
+        <div class="chart-sub" id="sub-ms">Top competidores · Nacional</div>
+      </div>
+      <div class="chart-wrap ms"><canvas id="chartMs"></canvas></div>
+    </div>
+  </div>
+
+  <!-- MAT CHARTS -->
+  <div style="margin-top:14px">
+    <div class="charts-grid">
+      <div class="chart-card" style="animation-delay:.36s">
+        <div class="chart-header">
+          <span class="chart-num">03</span>
+          <span class="chart-title">MS% MAT · Bajo Receta (ETICO)</span>
+          <div class="chart-sub">Participación anual acumulada por producto</div>
+        </div>
+        <div class="chart-wrap" style="height:360px"><canvas id="chartMatRx"></canvas></div>
+      </div>
+      <div class="chart-card" style="animation-delay:.42s">
+        <div class="chart-header">
+          <span class="chart-num">04</span>
+          <span class="chart-title">MS% MAT · Venta Libre (VL)</span>
+          <div class="chart-sub">Participación anual acumulada por producto</div>
+        </div>
+        <div class="chart-wrap" style="height:360px"><canvas id="chartMatVl"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="source">Fuente: IQVIA · AR_PM_FV_Standard · Feb 2026 · Unidades mensuales por producto</div>
+
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────────────────
+const ALL_LABELS = ["Jan 2022","Feb 2022","Mar 2022","Apr 2022","May 2022","Jun 2022","Jul 2022","Aug 2022","Sep 2022","Oct 2022","Nov 2022","Dec 2022","Jan 2023","Feb 2023","Mar 2023","Apr 2023","May 2023","Jun 2023","Jul 2023","Aug 2023","Sep 2023","Oct 2023","Nov 2023","Dec 2023","Jan 2024","Feb 2024","Mar 2024","Apr 2024","May 2024","Jun 2024","Jul 2024","Aug 2024","Sep 2024","Oct 2024","Nov 2024","Dec 2024","Jan 2025","Feb 2025","Mar 2025","Apr 2025","May 2025","Jun 2025","Jul 2025","Aug 2025","Sep 2025","Oct 2025","Nov 2025","Dec 2025"];
+
+const SEG_DATA = {
+  rx: {
+    units: {
+      "ACEMUK (SIE)":         [367401,197632,305661,352912,499517,556234,496251,354041,352131,411542,310760,237131,131575,94680,173469,266792,392313,501655,436027,373298,347992,289416,186146,141847,134008,115170,130227,202331,441831,521177,448576,374452,340198,259027,180726,159305,133921,142783,234579,354129,377606,508133,519619,322891,337096,273060,214671,169394],
+      "TOFLUX (CSO)":         [21136,18225,22353,26506,32687,44648,39797,27396,26958,28864,28589,13127,9519,6756,11097,18959,30756,47410,41018,34372,30828,27929,16743,10829,10386,8371,10053,15201,36571,57696,39330,32156,29386,23319,13491,11490,8798,8140,17826,29664,33060,42297,34843,27445,28981,22724,15050,11925],
+      "TUKOL AC 600 (G3A)":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,15924,10675,14445,11383,19789,22565,8495,7895,6195,3391,3272],
+      "DOSOMUK (BET)":        [3395,2332,1684,6378,6248,3943,6939,2696,4314,2584,2339,2445,1452,1218,4052,4447,5492,6811,7438,4324,4910,3161,3765,2305,1949,2678,4307,5081,7918,9944,7351,7058,5417,5076,2129,1609,1282,1327,2926,5579,4459,5763,5358,3518,4080,2442,1471,1567],
+      "TOFLUX JARABE (CSO)":  [3399,1694,4477,9636,15728,23117,23899,10002,7903,16733,12892,3098,1857,1426,3054,5760,9649,10714,7526,6171,6133,5051,3513,2040,1332,1306,1945,3049,6667,9287,5846,4952,4816,3267,2185,1512,987,1067,2457,3797,4358,6078,4536,4141,4301,2888,2087,1560],
+      "QURA MUK (BEB)":       [6032,4636,5926,7944,7752,4663,327,2036,2762,2976,2394,1547,958,558,1069,1828,2748,3907,3985,3483,3228,2427,1573,990,1201,807,847,1229,3539,5430,3937,3351,2892,2024,1183,872,652,576,1633,1997,2094,3048,2227,2043,2029,1334,971,787],
+      "BISTRONFOR (ISA)":     [2396,1416,1443,1888,1775,2985,3449,2247,2512,2311,1716,1663,1555,657,1037,2426,3673,4148,3944,3527,2799,1844,1331,1072,966,1000,509,586,1711,3276,1068,1043,855,755,775,1000,1354,973,1540,2797,2895,5103,1326,1339,1322,1288,1214,126],
+      "BRONCOLIUM (T.L)":     [3134,3114,2263,2341,3536,3924,3303,2653,1920,1967,2108,1307,1006,1183,1199,1791,2324,3245,2760,2275,1841,1415,1232,803,795,648,660,935,1766,2065,1802,1405,1667,983,790,740,1002,1284,1241,1927,2467,2570,3194,1823,1692,2618,714,725],
+      "DENVERMUC (DEN)":      [940,960,1073,1141,1698,1622,1100,1376,1290,1895,847,1141,886,433,731,1215,1369,2268,2442,2587,1831,1780,1081,735,851,505,660,1065,2321,2789,2638,1822,1841,1715,1835,687,554,569,1826,1653,1545,2396,1615,1185,2249,1214,1205,716],
+      "DEXALERGIN MUC (TEV)": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1922,2085,592,825,372,846,846,762,1796,2709,2126,2449,1453,825,962,1457],
+    },
+    ms: {
+      "ACEMUK (SIE)":         [88.4,83.7,86.9,85.0,86.2,85.2,85.4,86.2,87.2,87.1,85.3,90.2,87.9,88.1,87.1,86.9,86.7,85.9,86.0,86.4,86.7,86.6,86.0,87.8,88.0,86.5,86.0,87.2,87.3,84.3,86.6,86.5,86.3,85.4,87.8,88.6,89.5,82.0,84.6,84.7,85.3,84.8,86.7,85.7,85.9,86.5,88.5,88.2],
+      "TOFLUX (CSO)":         [5.1,7.7,6.4,6.4,5.6,6.8,6.8,6.7,6.7,6.1,7.8,5.0,6.4,6.3,5.6,6.2,6.8,8.1,8.1,8.0,7.7,8.4,7.7,6.7,6.8,6.3,6.6,6.6,7.2,9.3,7.6,7.4,7.5,7.7,6.6,6.4,5.9,4.7,6.4,7.1,7.5,7.1,5.8,7.3,7.4,7.2,6.2,6.2],
+      "TUKOL AC 600 (G3A)":  [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9.1,3.8,3.5,2.6,3.3,3.8,2.3,2.0,2.0,1.4,1.7],
+      "DOSOMUK (BET)":        [0.8,1.0,0.5,1.5,1.1,0.6,1.2,0.7,1.1,0.5,0.6,0.9,1.0,1.1,2.0,1.4,1.2,1.2,1.5,1.0,1.2,0.9,1.7,1.4,1.3,2.0,2.8,2.2,1.6,1.6,1.4,1.6,1.4,1.7,1.0,0.9,0.9,0.8,1.1,1.3,1.0,1.0,0.9,0.9,1.0,0.8,0.6,0.8],
+      "TOFLUX JARABE (CSO)":  [0.8,0.7,1.3,2.3,2.7,3.5,4.1,2.4,2.0,3.5,3.5,1.2,1.2,1.3,1.5,1.9,2.1,1.8,1.5,1.4,1.5,1.5,1.6,1.3,0.9,1.0,1.3,1.3,1.3,1.5,1.1,1.1,1.2,1.1,1.1,0.8,0.7,0.6,0.9,0.9,1.0,1.0,0.8,1.1,1.1,0.9,0.9,0.8],
+      "QURA MUK (BEB)":       [1.5,2.0,1.7,1.9,1.3,0.7,0.1,0.5,0.7,0.6,0.7,0.6,0.6,0.5,0.5,0.6,0.6,0.7,0.8,0.8,0.8,0.7,0.7,0.6,0.8,0.6,0.6,0.5,0.7,0.9,0.8,0.8,0.7,0.7,0.6,0.5,0.4,0.3,0.6,0.5,0.5,0.5,0.4,0.5,0.5,0.4,0.4,0.4],
+      "BISTRONFOR (ISA)":     [0.6,0.6,0.4,0.5,0.3,0.5,0.6,0.5,0.6,0.5,0.5,0.6,1.0,0.6,0.5,0.8,0.8,0.7,0.8,0.8,0.7,0.6,0.6,0.7,0.6,0.8,0.3,0.3,0.3,0.5,0.2,0.2,0.2,0.2,0.4,0.6,0.9,0.6,0.6,0.7,0.7,0.9,0.2,0.4,0.3,0.4,0.5,0.1],
+      "BRONCOLIUM (T.L)":     [0.8,1.3,0.6,0.6,0.6,0.6,0.6,0.6,0.5,0.4,0.6,0.5,0.7,1.1,0.6,0.6,0.5,0.6,0.5,0.5,0.5,0.4,0.6,0.5,0.5,0.5,0.4,0.4,0.3,0.3,0.3,0.3,0.4,0.3,0.4,0.4,0.7,0.7,0.4,0.5,0.6,0.4,0.5,0.5,0.4,0.8,0.3,0.4],
+      "DENVERMUC (DEN)":      [0.2,0.4,0.3,0.3,0.3,0.2,0.2,0.3,0.3,0.4,0.2,0.4,0.6,0.4,0.4,0.4,0.3,0.4,0.5,0.6,0.5,0.5,0.5,0.5,0.6,0.4,0.4,0.5,0.5,0.5,0.5,0.4,0.5,0.6,0.9,0.4,0.4,0.3,0.7,0.4,0.3,0.4,0.3,0.3,0.6,0.4,0.5,0.4],
+      "DEXALERGIN MUC (TEV)": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0.5,0.7,0.3,0.5,0.2,0.5,0.3,0.2,0.4,0.5,0.4,0.6,0.4,0.3,0.4,0.8],
+    },
+    kpi: {
+      ms2025: '85.7%', units2025: '3.59M', label: 'ACEMUK (SIE)', marketLabel: 'INHIBID EXPECTORANTE', total2025: '4.18M u. mercado'
+    }
+  },
+  vl: {
+    units: {
+      "ACEMUK VL (SIE)":    [25673,14824,29267,33437,49587,55086,40348,24961,30722,36984,28676,16176,9276,7621,15310,21933,36026,44449,34922,29423,27423,22826,15520,10261,8661,7790,11091,17286,38345,43453,28201,25900,24943,18569,13434,5129,5262,9076,8798,14304,12128,21649,21635,10630,10192,9781,8715,4564],
+      "TOFLUX VL (CSO)":    [2466,1761,3400,4664,5913,8363,5806,3467,3725,4376,4361,1811,1462,1304,1890,3144,4503,5576,4692,3754,3940,3121,2428,1740,1492,1088,1574,1818,3808,5881,3871,3607,2962,2304,1524,647,527,517,957,1363,1618,1960,1661,1258,1078,852,649,458],
+      "CEDRIMUC (ELE)":     [1701,2768,4799,1596,2597,3338,1877,1729,759,900,700,1066,4910,11661,6954,1634,1292,2678,4757,3513,1907,1247,744,494,399,282,309,528,2106,1533,2457,1877,1081,897,519,377,1784,1650,2115,895,1398,1824,1809,918,858,676,489,146],
+      "TUKOL AC 200 (G3A)": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2377,4944,2740,1991,1542,1410,965,423,393,255,214],
+    },
+    ms: {
+      "ACEMUK VL (SIE)":    [86.0,76.6,78.1,84.2,85.4,82.5,84.0,82.8,87.3,87.5,85.0,84.9,59.3,37.0,63.4,82.1,86.1,84.3,78.7,80.2,82.4,83.9,83.0,82.1,82.1,85.0,85.5,88.1,86.6,85.4,81.7,82.5,86.1,85.3,86.8,83.4,69.5,66.6,52.3,74.1,70.8,80.3,81.6,77.2,81.2,83.6,86.2,84.8],
+      "TOFLUX VL (CSO)":    [8.3,9.1,9.1,11.7,10.2,12.5,12.1,11.5,10.6,10.4,12.9,9.5,9.3,6.3,7.8,11.8,10.8,10.6,10.6,10.2,11.8,11.5,13.0,13.9,14.1,11.9,12.1,9.3,8.6,11.6,11.2,11.5,10.2,10.6,9.8,10.5,7.0,3.8,5.7,7.1,9.4,7.3,6.3,9.1,8.6,7.3,6.4,8.5],
+      "CEDRIMUC (ELE)":     [5.7,14.3,12.8,4.0,4.5,5.0,3.9,5.7,2.2,2.1,2.1,5.6,31.4,56.6,28.8,6.1,3.1,5.1,10.7,9.6,5.7,4.6,4.0,4.0,3.8,3.1,2.4,2.7,4.8,3.0,7.1,6.0,3.7,4.1,3.4,6.1,23.6,12.1,12.6,4.6,8.2,6.8,6.8,6.7,6.8,5.8,4.8,2.7],
+      "TUKOL AC 200 (G3A)": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17.5,29.4,14.2,11.6,5.7,5.3,7.0,3.4,3.4,2.5,4.0],
+    },
+    kpi: {
+      ms2025: '75.4%', units2025: '136.7K', label: 'ACEMUK VL (SIE)', marketLabel: 'VL EXPECTORANTE', total2025: '181.4K u. mercado'
+    }
+  }
+};
+
+const COLORS = {
+  "ACEMUK (SIE)":         '#8B1C1C',
+  "TOFLUX (CSO)":         '#2563eb',
+  "TUKOL AC 600 (G3A)":  '#16a34a',
+  "DOSOMUK (BET)":        '#7c3aed',
+  "TOFLUX JARABE (CSO)":  '#d97706',
+  "QURA MUK (BEB)":       '#0891b2',
+  "BISTRONFOR (ISA)":     '#be185d',
+  "BRONCOLIUM (T.L)":     '#059669',
+  "DENVERMUC (DEN)":      '#6b7280',
+  "DEXALERGIN MUC (TEV)": '#9333ea',
+  "ACEMUK VL (SIE)":      '#8B1C1C',
+  "TOFLUX VL (CSO)":      '#2563eb',
+  "CEDRIMUC (ELE)":       '#7c3aed',
+  "TUKOL AC 200 (G3A)":  '#16a34a',
+};
+
+const ALL_YEARS = ['2022','2023','2024','2025'];
+let activeYears = new Set(ALL_YEARS);
+let activeSeg = 'rx';
+let activeComps = new Set();
+
+// init active comps
+function initActiveComps() {
+  activeComps.clear();
+  Object.keys(SEG_DATA[activeSeg].units).forEach(k => activeComps.add(k));
+}
+initActiveComps();
+
+// ─── KPI render ──────────────────────────────────────────────
+function renderKpi() {
+  const d = SEG_DATA[activeSeg];
+  const seg = activeSeg === 'rx' ? 'Bajo Receta' : 'Venta Libre';
+  // compute last available MS for acemuk
+  document.getElementById('kpi-row').innerHTML = `
+    <div class="kpi-card c1" style="animation-delay:.05s">
+      <div class="kpi-label">MS% · Nacional · 2025</div>
+      <div class="kpi-value">${d.kpi.ms2025}</div>
+      <div class="kpi-desc">${d.kpi.label}</div>
+      <div class="kpi-sub">${d.kpi.total2025}</div>
+    </div>
+    <div class="kpi-card c2" style="animation-delay:.08s">
+      <div class="kpi-label">Unidades SIE · 2025</div>
+      <div class="kpi-value">${d.kpi.units2025}</div>
+      <div class="kpi-desc">${d.kpi.label}</div>
+      <div class="kpi-sub">${seg}</div>
+    </div>
+    <div class="kpi-card c3" style="animation-delay:.11s">
+      <div class="kpi-label">MS% Dic '25 · Nacional</div>
+      <div class="kpi-value">${activeSeg==='rx'?'88.2%':'84.8%'}</div>
+      <div class="kpi-desc">Último mes</div>
+      <div class="kpi-sub">vs. ${activeSeg==='rx'?'+2.7pp':'−0.2pp'} vs Ene '25</div>
+    </div>
+    <div class="kpi-card c4" style="animation-delay:.14s">
+      <div class="kpi-label">Tendencia 2022→2025</div>
+      <div class="kpi-value">${activeSeg==='rx'?'−19.3%':'−60.5%'}</div>
+      <div class="kpi-desc">Variación total mercado</div>
+      <div class="kpi-sub">5.61M → ${activeSeg==='rx'?'4.18M':'181K'} u.</div>
+    </div>`;
+}
+
+// ─── Competitor pills ─────────────────────────────────────────
+function renderCompPills() {
+  const container = document.getElementById('comp-pills');
+  container.innerHTML = '';
+  const prods = Object.keys(SEG_DATA[activeSeg].units);
+  prods.forEach(label => {
+    const c = COLORS[label] || '#888';
+    const pill = document.createElement('div');
+    pill.className = 'comp-pill' + (activeComps.has(label) ? '' : ' off');
+    pill.dataset.label = label;
+    pill.innerHTML = `<div class="cdot" style="background:${c}"></div>${label}`;
+    pill.addEventListener('click', () => {
+      if (activeComps.has(label)) {
+        if (activeComps.size === 1) return;
+        activeComps.delete(label);
+        pill.classList.add('off');
+      } else {
+        activeComps.add(label);
+        pill.classList.remove('off');
+      }
+      refreshCharts();
+    });
+    container.appendChild(pill);
+  });
+}
+
+// ─── Filter by years ─────────────────────────────────────────
+function filterByYears(rawData) {
+  const indices = ALL_LABELS.reduce((acc, l, i) => {
+    if (activeYears.has(l.split(' ')[1])) acc.push(i);
+    return acc;
+  }, []);
+  const labels = indices.map(i => ALL_LABELS[i]);
+  const filtered = {};
+  Object.entries(rawData).forEach(([k, arr]) => { filtered[k] = indices.map(i => arr[i]); });
+  return { labels, filtered };
+}
+
+// ─── Chart.js defaults ───────────────────────────────────────
+Chart.defaults.color = '#9ca3af';
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.font.size = 11;
+
+function makeDatasets(filteredData, isSie, isMs) {
+  return Object.entries(filteredData)
+    .filter(([label]) => activeComps.has(label))
+    .map(([label, data]) => {
+      const isSiegfried = label.includes('(SIE)');
+      return {
+        label,
+        data,
+        borderColor: COLORS[label] || '#888',
+        backgroundColor: isSiegfried ? (COLORS[label] + '18') : 'transparent',
+        borderWidth: isSiegfried ? 2.5 : 1.5,
+        pointRadius: isSiegfried ? (data.length > 30 ? 3 : 5) : (data.length > 30 ? 1.5 : 3),
+        pointHoverRadius: 6,
+        pointBackgroundColor: isSiegfried ? COLORS[label] : '#fff',
+        pointBorderColor: COLORS[label],
+        pointBorderWidth: isSiegfried ? 0 : 1.5,
+        tension: 0.35,
+        fill: isSiegfried,
+      };
+    });
+}
+
+function chartOpts(isMs) {
+  return {
+    responsive: true, maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom',
+        labels: {
+          boxWidth: 10, boxHeight: 10,
+          padding: 12,
+          font: { size: 10, family: "'Plus Jakarta Sans', sans-serif" },
+          color: '#6b7280',
+          usePointStyle: true, pointStyle: 'circle',
+        }
+      },
+      tooltip: {
+        backgroundColor: '#fff',
+        borderColor: '#e2e4e8',
+        borderWidth: 1,
+        padding: 10,
+        titleColor: '#1a1d23',
+        bodyColor: '#6b7280',
+        titleFont: { family: "'Plus Jakarta Sans', sans-serif", weight: '700', size: 12 },
+        bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 11 },
+        callbacks: {
+          label: ctx => {
+            const v = ctx.parsed.y;
+            if (v === 0) return null;
+            return isMs
+              ? ` ${ctx.dataset.label}: ${v.toFixed(1)}%`
+              : ` ${ctx.dataset.label}: ${v.toLocaleString('es-AR')} u.`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: '#f3f4f6', drawBorder: false },
+        border: { display: false },
+        ticks: {
+          maxTicksLimit: 24,
+          callback(val, i) {
+            const l = this.getLabelForValue(i);
+            return l && l.startsWith('Jan') ? l : (l ? l.split(' ')[0] : '');
+          },
+          font: { size: 10, family: "'Plus Jakarta Sans', sans-serif" },
+          color: ctx => {
+            const l = ctx.tick?.label;
+            return typeof l === 'string' && l.startsWith('Jan') ? '#374151' : '#9ca3af';
+          },
+          maxRotation: 0,
+        }
+      },
+      y: {
+        grid: { color: '#f3f4f6', drawBorder: false },
+        border: { display: false, dash: [4, 4] },
+        ticks: {
+          callback: isMs
+            ? v => v + '%'
+            : v => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'K' : v,
+          font: { size: 10 },
+        },
+        ...(isMs ? { min: 0, max: 100 } : {})
+      }
+    }
+  };
+}
+
+// Build charts
+let { labels: labInit, filtered: fUInit } = filterByYears(SEG_DATA.rx.units);
+let { filtered: fMsInit } = filterByYears(SEG_DATA.rx.ms);
+
+const chartU  = new Chart(document.getElementById('chartU'),  { type:'line', data:{ labels: labInit, datasets: makeDatasets(fUInit,  true, false) }, options: chartOpts(false) });
+const chartMs = new Chart(document.getElementById('chartMs'), { type:'line', data:{ labels: labInit, datasets: makeDatasets(fMsInit, true, true)  }, options: chartOpts(true)  });
+
+function refreshCharts() {
+  const d = SEG_DATA[activeSeg];
+  const { labels, filtered: fu  } = filterByYears(d.units);
+  const { filtered: fms } = filterByYears(d.ms);
+
+  [chartU, chartMs].forEach(c => c.data.labels = labels);
+  chartU.data.datasets  = makeDatasets(fu,  true, false);
+  chartMs.data.datasets = makeDatasets(fms, true, true);
+  [chartU, chartMs].forEach(c => c.update());
+}
+
+// ─── Segment switch ───────────────────────────────────────────
+function switchSeg(seg) {
+  activeSeg = seg;
+  document.querySelectorAll('.seg-tab').forEach(t => t.classList.toggle('active', t.dataset.seg === seg));
+  initActiveComps();
+  renderKpi();
+  renderCompPills();
+  refreshCharts();
+}
+
+// ─── Year buttons ─────────────────────────────────────────────
+document.querySelectorAll('.yr-btn[data-year]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const yr = btn.dataset.year;
+    if (activeYears.has(yr)) {
+      if (activeYears.size === 1) return;
+      activeYears.delete(yr);
+      btn.classList.remove('active');
+    } else {
+      activeYears.add(yr);
+      btn.classList.add('active');
+    }
+    refreshCharts();
+  });
+});
+document.getElementById('btn-all').addEventListener('click', () => {
+  ALL_YEARS.forEach(y => activeYears.add(y));
+  document.querySelectorAll('.yr-btn[data-year]').forEach(b => b.classList.add('active'));
+  refreshCharts();
+});
+
+// ─── MAT MS% CHARTS ──────────────────────────────────────────
+const MAT_YEARS = ['2022', '2023', '2024', '2025'];
+
+const MAT_RX = [
+  { label: 'ACEMUK (SIE)',        data: [86.3, 86.6, 86.4, 85.8], color: '#8B1C1C' },
+  { label: 'TOFLUX (CSO)',        data: [6.4,  7.4,  7.5,  6.7],  color: '#2563eb' },
+  { label: 'TUKOL AC 600 (G3A)', data: [0.0,  0.0,  0.0,  3.0],  color: '#16a34a' },
+  { label: 'TOFLUX JARABE (CSO)',data: [2.6,  1.6,  1.2,  0.9],  color: '#d97706' },
+  { label: 'DOSOMUK (BET)',       data: [0.9,  1.3,  1.6,  1.0],  color: '#7c3aed' },
+  { label: 'QURA MUK (BEB)',      data: [1.0,  0.7,  0.7,  0.5],  color: '#0891b2' },
+  { label: 'BISTRONFOR (ISA)',    data: [0.5,  0.7,  0.4,  0.5],  color: '#be185d' },
+  { label: 'BRONCOLIUM (T.L)',    data: [0.6,  0.5,  0.4,  0.5],  color: '#059669' },
+  { label: 'DEXALERGIN MUC (TEV)',data:[0.0,  0.0,  0.1,  0.4],  color: '#9333ea' },
+  { label: 'Otros',               data: [1.7,  1.2,  1.7,  0.7],  color: '#9ca3af' },
+];
+
+const MAT_VL = [
+  { label: 'ACEMUK VL (SIE)',    data: [83.9, 77.6, 85.0, 75.4], color: '#8B1C1C' },
+  { label: 'TOFLUX VL (CSO)',    data: [10.9, 10.6, 10.7,  7.1], color: '#2563eb' },
+  { label: 'CEDRIMUC (ELE)',     data: [5.2,  11.8,  4.3,  8.0], color: '#7c3aed' },
+  { label: 'TUKOL AC 200 (G3A)',data: [0.0,   0.0,  0.0,  9.5], color: '#16a34a' },
+];
+
+function buildMatChart(canvasId, matData) {
+  const datasets = matData.map(d => ({
+    label: d.label,
+    data: d.data,
+    backgroundColor: d.color + 'cc',
+    borderColor: d.color,
+    borderWidth: 1.5,
+    borderRadius: 4,
+    borderSkipped: false,
+  }));
+
+  return new Chart(document.getElementById(canvasId), {
+    type: 'bar',
+    data: { labels: MAT_YEARS, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: true,
+          position: 'bottom',
+          labels: {
+            boxWidth: 10, boxHeight: 10,
+            padding: 10,
+            font: { size: 10, family: "'Plus Jakarta Sans', sans-serif" },
+            color: '#6b7280',
+            usePointStyle: true, pointStyle: 'circle',
+          }
+        },
+        tooltip: {
+          backgroundColor: '#fff',
+          borderColor: '#e2e4e8',
+          borderWidth: 1,
+          padding: 10,
+          titleColor: '#1a1d23',
+          bodyColor: '#6b7280',
+          titleFont: { family: "'Plus Jakarta Sans', sans-serif", weight: '700', size: 12 },
+          bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 11 },
+          callbacks: {
+            label: ctx => ctx.parsed.y > 0
+              ? ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(1)}%`
+              : null
+          }
+        }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          grid: { display: false },
+          border: { display: false },
+          ticks: {
+            font: { size: 12, weight: '700', family: "'Plus Jakarta Sans', sans-serif" },
+            color: '#374151',
+          }
+        },
+        y: {
+          stacked: true,
+          min: 0, max: 100,
+          grid: { color: '#f3f4f6' },
+          border: { display: false },
+          ticks: {
+            callback: v => v + '%',
+            font: { size: 10 },
+          }
+        }
+      }
+    }
+  });
+}
+
+buildMatChart('chartMatRx', MAT_RX);
+buildMatChart('chartMatVl', MAT_VL);
+
+// ─── Init ─────────────────────────────────────────────────────
+renderKpi();
+renderCompPills();
+</script>
+</body>
+</html>
