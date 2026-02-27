@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>R05C · Mercado Completo · Siegfried</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --sie:#8B1C1C; --sie-light:#b02626; --sie-pale:#f9f0f0;
+    --nav-bg:#111318; --bg:#f2f3f5; --surface:#ffffff;
+    --border:#e2e4e8; --border2:#d0d3d9;
+    --text:#1a1d23; --muted:#6b7280; --muted2:#9ca3af;
+    --pill-bg:#eef0f3; --green:#16a34a; --blue:#2563eb; --purple:#7c3aed; --amber:#d97706;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; min-height: 100vh; }
+
+  /* NAV */
+  .topnav { background: var(--nav-bg); height: 48px; display: flex; align-items: center; padding: 0 28px; gap: 0; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #2a2d35; }
+  .logo { font-weight: 800; font-size: 14px; color: #fff; letter-spacing: .06em; margin-right: 32px; display: flex; align-items: center; gap: 7px; }
+  .logo-dot { width: 8px; height: 8px; background: var(--sie); border-radius: 50%; }
+  .nav-tag { background: var(--sie); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 4px; letter-spacing: .04em; margin-left: 8px; }
+
+  /* HEADER */
+  .page-header { background: var(--surface); border-bottom: 1px solid var(--border); padding: 20px 28px 20px; }
+  .breadcrumb { font-size: 10px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .breadcrumb span { color: var(--sie); }
+  .page-title { font-size: 26px; font-weight: 800; color: var(--text); line-height: 1.1; letter-spacing: -.3px; }
+  .page-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  /* CONTENT */
+  .content { max-width: 1360px; margin: 0 auto; padding: 20px 28px 48px; }
+
+  /* KPI CARDS */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 18px; }
+  @media(max-width:900px){ .kpi-row { grid-template-columns: 1fr 1fr; } }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px 14px; position: relative; overflow: hidden; animation: fadeUp .4s ease both; }
+  .kpi-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 3px; }
+  .kpi-card.c1::after { background: var(--sie); }
+  .kpi-card.c2::after { background: var(--blue); }
+  .kpi-card.c3::after { background: var(--green); }
+  .kpi-card.c4::after { background: var(--purple); }
+  .kpi-label { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .kpi-value { font-size: 28px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+  .kpi-card.c1 .kpi-value { color: var(--sie); }
+  .kpi-card.c2 .kpi-value { color: var(--blue); }
+  .kpi-card.c3 .kpi-value { color: var(--green); }
+  .kpi-card.c4 .kpi-value { color: var(--purple); }
+  .kpi-desc { font-size: 11px; color: var(--muted); line-height: 1.4; }
+  .kpi-sub { font-size: 10px; color: var(--muted2); margin-top: 6px; }
+
+  /* CHART CARD */
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 20px 16px; animation: fadeUp .4s ease both; }
+  .chart-header { margin-bottom: 14px; }
+  .chart-num { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--sie); color: #fff; font-size: 10px; font-weight: 800; margin-right: 8px; vertical-align: middle; }
+  .chart-title { font-size: 14px; font-weight: 700; color: var(--text); display: inline; }
+  .chart-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+  /* MAT TABLE */
+  .mat-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .mat-table thead tr { border-bottom: 2px solid var(--border); }
+  .mat-table th { padding: 8px 12px; text-align: right; font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; }
+  .mat-table th:first-child { text-align: left; }
+  .mat-table td { padding: 9px 12px; text-align: right; font-size: 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .mat-table td:first-child { text-align: left; }
+  .mat-table tbody tr:last-child td { border-bottom: none; }
+  .mat-table tbody tr:hover { background: var(--pill-bg); }
+  .mat-prod { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--text); }
+  .mat-prod .dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .mat-val { font-weight: 500; }
+  .mat-val.sie-val { font-weight: 700; color: var(--sie); }
+  .mat-delta { display: inline-flex; align-items: center; padding: 2px 7px; border-radius: 12px; font-size: 10px; font-weight: 700; }
+  .mat-delta.up { background: #dcfce7; color: #16a34a; }
+  .mat-delta.down { background: #fee2e2; color: #dc2626; }
+  .mat-delta.flat { background: #f3f4f6; color: #6b7280; }
+  .mat-total-row td { background: var(--pill-bg); font-weight: 600; }
+
+  .source { font-size: 10px; color: var(--muted2); text-align: right; margin-top: 20px; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="topnav">
+  <div class="logo"><div class="logo-dot"></div>SIEGFRIED<span class="nav-tag">R05C</span></div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="breadcrumb">SIEGFRIED · <span>R05C · EXPECTORANTES / MUCOLÍTICOS</span> · INTELIGENCIA DE MERCADOS</div>
+  <div class="page-title">Mercado R05C · Completo</div>
+  <div class="page-sub">Ene 2022 – Dic 2025 · IQVIA AR_PM_FV_Standard · Todos los segmentos</div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- KPI ROW -->
+  <div class="kpi-row">
+    <div class="kpi-card c1" style="animation-delay:.06s">
+      <div class="kpi-label">MS% Acemuk · MAT 2025</div>
+      <div class="kpi-value">60.3%</div>
+      <div class="kpi-desc">Market share anual<br>en mercado R05C</div>
+      <div class="kpi-sub">vs 59.0% MAT 2024 · <strong style="color:var(--green)">▲ +1.3pp</strong></div>
+    </div>
+    <div class="kpi-card c2" style="animation-delay:.12s">
+      <div class="kpi-label">Unidades Acemuk · MAT 2025</div>
+      <div class="kpi-value">3.59M</div>
+      <div class="kpi-desc">Unidades vendidas<br>acumuladas 2025</div>
+      <div class="kpi-sub">vs 3.31M MAT 2024 · <strong style="color:var(--green)">▲ +8.5%</strong></div>
+    </div>
+    <div class="kpi-card c3" style="animation-delay:.18s">
+      <div class="kpi-label">MS% Dic '25 vs MAT 2025</div>
+      <div class="kpi-value">+4.5pp</div>
+      <div class="kpi-desc">Dic '25: 64.8%<br>MAT Dic '25: 60.3%</div>
+      <div class="kpi-sub">Acemuk termina el año por encima del promedio</div>
+    </div>
+    <div class="kpi-card c4" style="animation-delay:.24s">
+      <div class="kpi-label">Tendencia Mercado 2022→2025</div>
+      <div class="kpi-value">−23.1%</div>
+      <div class="kpi-desc">Mercado total:<br>7.74M → 5.95M u.</div>
+      <div class="kpi-sub">Acemuk gana share en mercado decreciente</div>
+    </div>
+  </div>
+
+  <!-- CHART 01: MERCADO COMPLETO -->
+  <div class="chart-card" style="animation-delay:.30s">
+    <div class="chart-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+      <div>
+        <span class="chart-num" style="background:#374151">01</span>
+        <span class="chart-title">Mercado R05C Completo · Unidades + MS% Acemuk</span>
+        <div class="chart-sub">Todos los períodos disponibles · Ene 2022 – Dic 2025</div>
+      </div>
+      <div style="display:flex; gap:12px; align-items:center; font-size:11px; font-weight:600; color:var(--muted); flex-wrap:wrap;">
+        <span><span style="display:inline-block;width:12px;height:12px;background:#8B1C1C;border-radius:2px;margin-right:5px;vertical-align:middle"></span>Total Mercado R05C</span>
+        <span><span style="display:inline-block;width:28px;height:2.5px;background:#2563eb;margin-right:5px;vertical-align:middle;border-radius:2px"></span>MS% Acemuk</span>
+      </div>
+    </div>
+    <div style="position:relative; height:420px"><canvas id="chartR05CTotal"></canvas></div>
+
+    <!-- MAT ANNUAL TABLE -->
+    <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
+      <div style="font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:10px;">Resumen MAT Anual</div>
+      <table class="mat-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">Período</th>
+            <th>Total R05C</th>
+            <th>Acemuk</th>
+            <th>MS% Acemuk</th>
+            <th>Var MS% YoY</th>
+            <th>Var Mercado YoY</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="mat-prod"><span class="dot" style="background:#374151"></span>MAT Dic 2022</div></td>
+            <td class="mat-val" style="font-weight:700">7,738,929</td>
+            <td class="mat-val sie-val">4,441,213</td>
+            <td class="mat-val sie-val">57.4%</td>
+            <td>—</td>
+            <td>—</td>
+          </tr>
+          <tr>
+            <td><div class="mat-prod"><span class="dot" style="background:#374151"></span>MAT Dic 2023</div></td>
+            <td class="mat-val" style="font-weight:700">6,122,820</td>
+            <td class="mat-val sie-val">3,335,210</td>
+            <td class="mat-val sie-val">54.5%</td>
+            <td><span class="mat-delta down">▼ 2.9pp</span></td>
+            <td><span class="mat-delta down">▼ 20.9%</span></td>
+          </tr>
+          <tr>
+            <td><div class="mat-prod"><span class="dot" style="background:#374151"></span>MAT Dic 2024</div></td>
+            <td class="mat-val" style="font-weight:700">5,607,522</td>
+            <td class="mat-val sie-val">3,307,028</td>
+            <td class="mat-val sie-val">59.0%</td>
+            <td><span class="mat-delta up">▲ +4.5pp</span></td>
+            <td><span class="mat-delta down">▼ 8.4%</span></td>
+          </tr>
+          <tr>
+            <td><div class="mat-prod"><span class="dot" style="background:#374151"></span>MAT Dic 2025</div></td>
+            <td class="mat-val" style="font-weight:700">5,949,557</td>
+            <td class="mat-val sie-val">3,587,882</td>
+            <td class="mat-val sie-val">60.3%</td>
+            <td><span class="mat-delta up">▲ +1.3pp</span></td>
+            <td><span class="mat-delta up">▲ +6.1%</span></td>
+          </tr>
+          <tr class="mat-total-row">
+            <td style="text-align:left; color:var(--muted)">Var acumulada 2022 → 2025</td>
+            <td class="mat-val"><span class="mat-delta down">▼ 23.1%</span></td>
+            <td class="mat-val"><span class="mat-delta down">▼ 19.2%</span></td>
+            <td></td>
+            <td><span class="mat-delta up">▲ +2.9pp</span></td>
+            <td></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- CHART 02: 2024 vs 2025 COMPARISON -->
+  <div class="chart-card" style="margin-top:14px; animation-delay:.36s">
+    <div class="chart-header" style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px;">
+      <div>
+        <span class="chart-num" style="background:#374151">02</span>
+        <span class="chart-title">Mercado R05C · 2024 vs 2025</span>
+        <div class="chart-sub">Comparación mensual · Unidades totales + MS% Acemuk</div>
+      </div>
+      <div style="display:flex; gap:12px; align-items:center; font-size:11px; font-weight:600; color:var(--muted); flex-wrap:wrap;">
+        <span><span style="display:inline-block;width:12px;height:12px;background:#8B1C1C;border-radius:2px;margin-right:5px;vertical-align:middle"></span>2025</span>
+        <span><span style="display:inline-block;width:12px;height:12px;background:#8B1C1C44;border-radius:2px;margin-right:5px;vertical-align:middle"></span>2024</span>
+        <span><span style="display:inline-block;width:28px;height:2.5px;background:#2563eb;margin-right:5px;vertical-align:middle;border-radius:2px"></span>MS% 2025</span>
+        <span><span style="display:inline-block;width:28px;height:2.5px;background:#93c5fd;border-radius:2px;margin-right:5px;vertical-align:middle;border-style:dashed;border-width:1px 0 0;border-color:#93c5fd;height:0"></span>MS% 2024</span>
+      </div>
+    </div>
+    <div style="position:relative; height:380px"><canvas id="chartR05CComp"></canvas></div>
+
+    <!-- MONTHLY COMPARISON TABLE -->
+    <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
+      <div style="font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:10px;">Detalle Mensual 2024 vs 2025</div>
+      <table class="mat-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">Mes</th>
+            <th>Total 2024</th>
+            <th>Total 2025</th>
+            <th>Var Total</th>
+            <th>Acemuk 2024</th>
+            <th>Acemuk 2025</th>
+            <th>Var Acemuk</th>
+            <th>MS% 2024</th>
+            <th>MS% 2025</th>
+            <th>Var MS%</th>
+          </tr>
+        </thead>
+        <tbody id="compTable"></tbody>
+        <tfoot>
+          <tr class="mat-total-row">
+            <td style="text-align:left"><strong>MAT Dic</strong></td>
+            <td class="mat-val">5,607,522</td>
+            <td class="mat-val">5,949,557</td>
+            <td class="mat-val"><span class="mat-delta up">▲ +6.1%</span></td>
+            <td class="mat-val sie-val">3,307,028</td>
+            <td class="mat-val sie-val">3,587,882</td>
+            <td class="mat-val"><span class="mat-delta up">▲ +8.5%</span></td>
+            <td class="mat-val sie-val">59.0%</td>
+            <td class="mat-val sie-val">60.3%</td>
+            <td class="mat-val"><span class="mat-delta up">▲ +1.3pp</span></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <!-- CHART 03: MAT GROWTH CAPTURE -->
+  <div class="chart-card" style="margin-top:14px; animation-delay:.42s">
+    <div class="chart-header">
+      <span class="chart-num" style="background:#374151">03</span>
+      <span class="chart-title">Captura del Crecimiento · MAT 2024 vs MAT 2025</span>
+      <div class="chart-sub">Crecimiento de mercado: +342,035 u. (+6.1%) · ¿Quién capturó el crecimiento?</div>
+    </div>
+
+    <!-- GROWTH KPI BANNER -->
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:20px;">
+      <div style="background:var(--sie-pale); border:1px solid #f5c6c6; border-radius:8px; padding:14px 16px; text-align:center;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--sie); margin-bottom:6px;">Crecimiento Mercado</div>
+        <div style="font-size:24px; font-weight:800; color:var(--sie)">+342,035 u.</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:2px">5.61M → 5.95M (+6.1%)</div>
+      </div>
+      <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:14px 16px; text-align:center;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--green); margin-bottom:6px;">Capturado por Acemuk</div>
+        <div style="font-size:24px; font-weight:800; color:var(--green)">+280,854 u.</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:2px">82.1% del crecimiento total</div>
+      </div>
+      <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:14px 16px; text-align:center;">
+        <div style="font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--blue); margin-bottom:6px;">Ganancia en MS%</div>
+        <div style="font-size:24px; font-weight:800; color:var(--blue)">+1.3pp</div>
+        <div style="font-size:11px; color:var(--muted); margin-top:2px">59.0% → 60.3%</div>
+      </div>
+    </div>
+
+    <!-- CAPTURE BAR CHART -->
+    <div style="position:relative; height:340px"><canvas id="chartGrowth"></canvas></div>
+
+    <!-- MAT COMPARISON TABLE -->
+    <div style="margin-top:20px; border-top:1px solid var(--border); padding-top:16px;">
+      <div style="font-size:11px; font-weight:700; color:var(--muted); letter-spacing:.06em; text-transform:uppercase; margin-bottom:10px;">MAT 2024 vs MAT 2025 · Por Producto</div>
+      <table class="mat-table">
+        <thead>
+          <tr>
+            <th style="text-align:left">Producto</th>
+            <th>MAT 2024</th>
+            <th>MAT 2025</th>
+            <th>Var Unidades</th>
+            <th>Var %</th>
+            <th>Captura del Crecimiento</th>
+          </tr>
+        </thead>
+        <tbody id="matGrowthTable"></tbody>
+        <tfoot>
+          <tr class="mat-total-row">
+            <td style="text-align:left"><strong>TOTAL R05C</strong></td>
+            <td class="mat-val" style="font-weight:700">5,607,522</td>
+            <td class="mat-val" style="font-weight:700">5,949,557</td>
+            <td class="mat-val"><span class="mat-delta up">▲ +342,035</span></td>
+            <td class="mat-val"><span class="mat-delta up">▲ +6.1%</span></td>
+            <td class="mat-val">100.0%</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="source">Fuente: IQVIA · AR_PM_FV_Standard · Feb 2026 · Mercado R05C · Unidades mensuales</div>
+</div>
+
+<script>
+const R05C_LABELS = ["Jan 2022","Feb 2022","Mar 2022","Apr 2022","May 2022","Jun 2022","Jul 2022","Aug 2022","Sep 2022","Oct 2022","Nov 2022","Dec 2022","Jan 2023","Feb 2023","Mar 2023","Apr 2023","May 2023","Jun 2023","Jul 2023","Aug 2023","Sep 2023","Oct 2023","Nov 2023","Dec 2023","Jan 2024","Feb 2024","Mar 2024","Apr 2024","May 2024","Jun 2024","Jul 2024","Aug 2024","Sep 2024","Oct 2024","Nov 2024","Dec 2024","Jan 2025","Feb 2025","Mar 2025","Apr 2025","May 2025","Jun 2025","Jul 2025","Aug 2025","Sep 2025","Oct 2025","Nov 2025","Dec 2025"];
+
+const R05C_TOTAL = [616489,353770,580573,658304,892362,1123993,804686,562550,557946,651549,545513,391194,223283,165054,317786,516888,773318,916780,829878,680503,625918,513265,326824,233323,213926,186932,222167,346996,754949,922737,769556,634897,571813,432336,296409,254804,205336,226578,392012,592471,635317,884840,837171,552133,566609,453501,341982,261607];
+
+// Acemuk units
+const R05C_ACEMUK = [367401,197632,305661,352912,499517,556234,496251,354041,352131,411542,310760,237131,131575,94680,173469,266792,392313,501655,436027,373298,347992,289416,186146,141847,134008,115170,130227,202331,441831,521177,448576,374452,340198,259027,180726,159305,133921,142783,234579,354129,377606,508133,519619,322891,337096,273060,214671,169394];
+
+// Competitors (others = total - acemuk)
+const R05C_OTHERS = R05C_TOTAL.map((t, i) => t - R05C_ACEMUK[i]);
+
+const R05C_MS = [59.6,55.9,52.6,53.6,56.0,49.5,61.7,62.9,63.1,63.2,57.0,60.6,58.9,57.4,54.6,51.6,50.7,54.7,52.5,54.9,55.6,56.4,57.0,60.8,62.6,61.6,58.6,58.3,58.5,56.5,58.3,59.0,59.5,59.9,61.0,62.5,65.2,63.0,59.8,59.8,59.4,57.4,62.1,58.5,59.5,60.2,62.8,64.8];
+
+// Year strip + inflection plugin
+const yearStripPlugin = {
+  id: 'r05cYearStrip',
+  beforeDatasetsDraw(chart) {
+    const ctx = chart.ctx;
+    const labels = chart.data.labels || [];
+    const { top, bottom } = chart.chartArea;
+    ctx.save();
+    ['2023','2024','2025'].forEach(yr => {
+      const idx = labels.findIndex(l => l.startsWith('Jan ' + yr));
+      if (idx === -1 || !chart.getDatasetMeta(0)?.data[idx]) return;
+      const x = chart.getDatasetMeta(0).data[idx].x;
+      ctx.beginPath(); ctx.setLineDash([3,4]);
+      ctx.strokeStyle = '#d1d5db'; ctx.lineWidth = 1;
+      ctx.moveTo(x, top); ctx.lineTo(x, bottom); ctx.stroke();
+      ctx.setLineDash([]);
+    });
+    ctx.restore();
+  },
+  afterDraw(chart) {
+    const ctx = chart.ctx;
+    const labels = chart.data.labels || [];
+    const { left, right, bottom } = chart.chartArea;
+    const stripH = 18, stripY = bottom + 4;
+    const years = ['2022','2023','2024','2025'];
+    ctx.save();
+    years.forEach((yr, yi) => {
+      const startIdx = labels.findIndex(l => l.includes(yr));
+      const endIdx   = labels.reduce((acc, l, i) => l.includes(yr) ? i : acc, -1);
+      if (startIdx === -1) return;
+      const meta = chart.getDatasetMeta(0);
+      if (!meta?.data[startIdx]) return;
+      const step = startIdx > 0 ? (meta.data[startIdx].x - meta.data[startIdx-1].x) / 2 : 0;
+      const x1 = startIdx === 0 ? left : Math.max(meta.data[startIdx].x - step, left);
+      const x2 = endIdx < labels.length - 1
+        ? Math.min(meta.data[endIdx].x + (meta.data[endIdx+1].x - meta.data[endIdx].x) / 2, right)
+        : Math.min(meta.data[endIdx].x + step, right);
+      if (x2 <= x1) return;
+      ctx.fillStyle = yi % 2 === 0 ? '#f3f4f6' : '#e9eaec';
+      ctx.fillRect(x1, stripY, x2 - x1, stripH);
+      ctx.fillStyle = '#6b7280';
+      ctx.font = "700 10px 'Plus Jakarta Sans', sans-serif";
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(yr, (x1 + x2) / 2, stripY + stripH / 2);
+    });
+    ctx.restore();
+  }
+};
+
+new Chart(document.getElementById('chartR05CTotal'), {
+  type: 'bar',
+  data: {
+    labels: R05C_LABELS,
+    datasets: [
+      {
+        label: 'Acemuk (SIE)',
+        data: R05C_ACEMUK,
+        backgroundColor: '#8B1C1C',
+        borderWidth: 0,
+        stack: 'stack',
+        order: 2,
+        yAxisID: 'yU',
+      },
+      {
+        label: 'Competidores',
+        data: R05C_OTHERS,
+        backgroundColor: '#8B1C1C33',
+        borderWidth: 0,
+        stack: 'stack',
+        order: 2,
+        yAxisID: 'yU',
+      },
+      {
+        label: 'MS% Acemuk',
+        data: R05C_MS,
+        type: 'line',
+        borderColor: '#2563eb',
+        backgroundColor: 'rgba(37,99,235,0.06)',
+        borderWidth: 2,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: '#2563eb',
+        tension: 0.35,
+        fill: false,
+        order: 1,
+        yAxisID: 'yMs',
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    layout: { padding: { bottom: 28 } },
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#fff', borderColor: '#e2e4e8', borderWidth: 1, padding: 10,
+        titleColor: '#1a1d23', bodyColor: '#6b7280',
+        titleFont: { family: "'Plus Jakarta Sans', sans-serif", weight: '700', size: 12 },
+        bodyFont: { family: "'Plus Jakarta Sans', sans-serif", size: 11 },
+        callbacks: {
+          label: ctx => {
+            if (ctx.dataset.yAxisID === 'yMs') return ` MS% Acemuk: ${ctx.parsed.y.toFixed(1)}%`;
+            return ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('es-AR')} u.`;
+          },
+          afterBody: ctx => {
+            const ace = ctx.find(c => c.datasetIndex === 0)?.parsed.y || 0;
+            const oth = ctx.find(c => c.datasetIndex === 1)?.parsed.y || 0;
+            const total = ace + oth;
+            return total > 0 ? ['─────────────', ` Total R05C: ${total.toLocaleString('es-AR')} u.`] : [];
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        stacked: true,
+        grid: { display: false }, border: { display: false },
+        ticks: {
+          maxTicksLimit: 24,
+          callback(val, i) {
+            const l = this.getLabelForValue(i);
+            if (!l) return '';
+            if (l.startsWith('Jan')) return '';
+            if (l.startsWith('Jul')) return 'Jul';
+            return '';
+          },
+          font: { size: 9, family: "'Plus Jakarta Sans', sans-serif" },
+          color: '#9ca3af', maxRotation: 0,
+        }
+      },
+      yU: {
+        stacked: true,
+        position: 'left',
+        grid: { color: '#f3f4f6' }, border: { display: false },
+        ticks: {
+          callback: v => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'K' : v,
+          font: { size: 10 }, color: '#6b7280',
+        },
+        title: { display: true, text: 'Unidades', font: { size: 10, family: "'Plus Jakarta Sans', sans-serif" }, color: '#9ca3af' },
+        beginAtZero: true,
+      },
+      yMs: {
+        position: 'right',
+        grid: { display: false }, border: { display: false },
+        min: 0, max: 100,
+        ticks: {
+          callback: v => v + '%',
+          font: { size: 10 }, color: '#2563eb',
+          stepSize: 10,
+        },
+        title: { display: true, text: 'MS% Acemuk', font: { size: 10, family: "'Plus Jakarta Sans', sans-serif" }, color: '#2563eb' }
+      }
+    }
+  },
+  plugins: [yearStripPlugin]
+});
+
+// ─── CHART 02: 2024 vs 2025 ─────────────────────────────────
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const TOTAL_2024 = [213926,186932,222167,346996,754949,922737,769556,634897,571813,432336,296409,254804];
+const TOTAL_2025 = [205336,226578,392012,592471,635317,884840,837171,552133,566609,453501,341982,261607];
+const ACE_2024   = [134008,115170,130227,202331,441831,521177,448576,374452,340198,259027,180726,159305];
+const ACE_2025   = [133921,142783,234579,354129,377606,508133,519619,322891,337096,273060,214671,169394];
+const MS_2024    = [62.6,61.6,58.6,58.3,58.5,56.5,58.3,59.0,59.5,59.9,61.0,62.5];
+const MS_2025    = [65.2,63.0,59.8,59.8,59.4,57.4,62.1,58.5,59.5,60.2,62.8,64.8];
+
+new Chart(document.getElementById('chartR05CComp'), {
+  type: 'bar',
+  data: {
+    labels: MONTHS,
+    datasets: [
+      {
+        label: 'Total 2025',
+        data: TOTAL_2025,
+        backgroundColor: '#8B1C1C',
+        borderWidth: 0,
+        yAxisID: 'yU',
+        order: 2,
+      },
+      {
+        label: 'Total 2024',
+        data: TOTAL_2024,
+        backgroundColor: '#8B1C1C44',
+        borderWidth: 1,
+        borderColor: '#8B1C1C88',
+        yAxisID: 'yU',
+        order: 3,
+      },
+      {
+        label: 'MS% 2025',
+        data: MS_2025,
+        type: 'line',
+        borderColor: '#2563eb',
+        backgroundColor: 'transparent',
+        borderWidth: 2.5,
+        pointRadius: 4,
+        pointBackgroundColor: '#2563eb',
+        pointHoverRadius: 6,
+        tension: 0.35,
+        yAxisID: 'yMs',
+        order: 1,
+      },
+      {
+        label: 'MS% 2024',
+        data: MS_2024,
+        type: 'line',
+        borderColor: '#93c5fd',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        borderDash: [5, 4],
+        pointRadius: 3,
+        pointBackgroundColor: '#93c5fd',
+        pointHoverRadius: 5,
+        tension: 0.35,
+        yAxisID: 'yMs',
+        order: 1,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#fff', borderColor: '#e2e4e8', borderWidth: 1, padding: 10,
+        titleColor: '#1a1d23', bodyColor: '#6b7280',
+        titleFont: { family: "'Plus Jakarta Sans',sans-serif", weight: '700', size: 12 },
+        bodyFont: { family: "'Plus Jakarta Sans',sans-serif", size: 11 },
+        callbacks: {
+          label: ctx => {
+            const v = ctx.parsed.y;
+            if (ctx.dataset.yAxisID === 'yMs') return ` ${ctx.dataset.label}: ${v.toFixed(1)}%`;
+            return ` ${ctx.dataset.label}: ${v.toLocaleString('es-AR')} u.`;
+          },
+          afterBody: ctx => {
+            const t25 = ctx.find(c => c.dataset.label === 'Total 2025')?.parsed.y || 0;
+            const t24 = ctx.find(c => c.dataset.label === 'Total 2024')?.parsed.y || 0;
+            if (!t24) return [];
+            const varPct = ((t25 - t24) / t24 * 100).toFixed(1);
+            const sign = t25 >= t24 ? '▲' : '▼';
+            return ['─────────────', ` Var total: ${sign} ${varPct}%`];
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { display: false }, border: { display: false },
+        ticks: { font: { size: 10, family: "'Plus Jakarta Sans',sans-serif" }, color: '#374151', maxRotation: 0 }
+      },
+      yU: {
+        position: 'left',
+        grid: { color: '#f3f4f6' }, border: { display: false },
+        beginAtZero: true,
+        ticks: {
+          callback: v => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'K' : v,
+          font: { size: 10 }, color: '#6b7280',
+        },
+        title: { display: true, text: 'Unidades', font: { size: 10, family: "'Plus Jakarta Sans',sans-serif" }, color: '#9ca3af' }
+      },
+      yMs: {
+        position: 'right',
+        grid: { display: false }, border: { display: false },
+        min: 0, max: 100,
+        ticks: { callback: v => v + '%', font: { size: 10 }, color: '#2563eb', stepSize: 10 },
+        title: { display: true, text: 'MS% Acemuk', font: { size: 10, family: "'Plus Jakarta Sans',sans-serif" }, color: '#2563eb' }
+      }
+    }
+  }
+});
+
+// Populate comparison table
+const tbody = document.getElementById('compTable');
+const monthNames = {Jan:'Enero',Feb:'Febrero',Mar:'Marzo',Apr:'Abril',May:'Mayo',Jun:'Junio',Jul:'Julio',Aug:'Agosto',Sep:'Septiembre',Oct:'Octubre',Nov:'Noviembre',Dec:'Diciembre'};
+MONTHS.forEach((m, i) => {
+  const t24 = TOTAL_2024[i], t25 = TOTAL_2025[i];
+  const a24 = ACE_2024[i],   a25 = ACE_2025[i];
+  const ms24 = MS_2024[i],   ms25 = MS_2025[i];
+  const varT  = ((t25-t24)/t24*100).toFixed(1);
+  const varA  = ((a25-a24)/a24*100).toFixed(1);
+  const varMs = (ms25-ms24).toFixed(1);
+  const badge = (v, isMs) => {
+    const n = parseFloat(v);
+    const cls = n > (isMs ? 0.05 : 0.05) ? 'up' : n < (isMs ? -0.05 : -0.05) ? 'down' : 'flat';
+    const sym = cls==='up' ? '▲' : cls==='down' ? '▼' : '→';
+    return `<span class="mat-delta ${cls}">${sym} ${isMs ? v+'pp' : v+'%'}</span>`;
+  };
+  tbody.innerHTML += `
+    <tr>
+      <td><div class="mat-prod"><span class="dot" style="background:#6b7280"></span>${monthNames[m]}</div></td>
+      <td class="mat-val">${t24.toLocaleString('es-AR')}</td>
+      <td class="mat-val">${t25.toLocaleString('es-AR')}</td>
+      <td>${badge(varT, false)}</td>
+      <td class="mat-val sie-val">${a24.toLocaleString('es-AR')}</td>
+      <td class="mat-val sie-val">${a25.toLocaleString('es-AR')}</td>
+      <td>${badge(varA, false)}</td>
+      <td class="mat-val">${ms24}%</td>
+      <td class="mat-val sie-val">${ms25}%</td>
+      <td>${badge(varMs, true)}</td>
+    </tr>`;
+});
+
+// ─── CHART 03: GROWTH CAPTURE ────────────────────────────────
+const GROWTH_DATA = [
+  { prod: 'ACEMUK (SIE)',            v24: 3307028, v25: 3587882, sie: true  },
+  { prod: 'TUKOL AC 600 (G3A)',      v24: 0,       v25: 124029,  sie: false },
+  { prod: 'MUCOLITIC (RMM)',         v24: 274266,  v25: 296948,  sie: false },
+  { prod: 'FUNCIONBRON H (MIC)',     v24: 12785,   v25: 28485,   sie: false },
+  { prod: 'ALIVIATOS (DEN)',         v24: 112558,  v25: 126771,  sie: false },
+  { prod: 'DEXALERGIN MUC (TEV)',    v24: 5424,    v25: 16603,   sie: false },
+  { prod: 'BISTRONFOR (ISA)',        v24: 13544,   v25: 21277,   sie: false },
+  { prod: 'ATHOS (RMM)',             v24: 831516,  v25: 835363,  sie: false },
+  { prod: 'TOFLUX Total (CSO)',      v24: 333614,  v25: 319010,  sie: false },
+  { prod: 'DOSOMUK (BET)',           v24: 60517,   v25: 39772,   sie: false },
+  { prod: 'AMBRIL (ELE)',            v24: 106577,  v25: 84219,   sie: false },
+  { prod: 'ACETILCISTEIN TEVA',      v24: 28397,   v25: 552,     sie: false },
+  { prod: 'QURA TOS (BEB)',          v24: 100133,  v25: 55781,   sie: false },
+  { prod: 'Otros',                   v24: 571163,  v25: 532846,  sie: false },
+];
+const MKT_GROWTH = 342035;
+
+// Sort by growth descending for chart (top gainers + losers)
+const chartProds = [...GROWTH_DATA].sort((a,b) => (b.v25-b.v24)-(a.v25-a.v24));
+const growthLabels = chartProds.map(d => d.prod);
+const growthVals   = chartProds.map(d => d.v25 - d.v24);
+const growthColors = growthVals.map((v, i) => {
+  if (chartProds[i].sie) return v >= 0 ? '#8B1C1C' : '#ef4444';
+  return v >= 0 ? '#16a34acc' : '#ef444466';
+});
+
+new Chart(document.getElementById('chartGrowth'), {
+  type: 'bar',
+  data: {
+    labels: growthLabels,
+    datasets: [{
+      label: 'Variación unidades MAT 24→25',
+      data: growthVals,
+      backgroundColor: growthColors,
+      borderWidth: 0,
+      borderRadius: 3,
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#fff', borderColor: '#e2e4e8', borderWidth: 1, padding: 10,
+        titleColor: '#1a1d23', bodyColor: '#6b7280',
+        titleFont: { family: "'Plus Jakarta Sans',sans-serif", weight: '700', size: 12 },
+        bodyFont: { family: "'Plus Jakarta Sans',sans-serif", size: 11 },
+        callbacks: {
+          label: ctx => {
+            const v = ctx.parsed.x;
+            const cap = (v / MKT_GROWTH * 100).toFixed(1);
+            const sign = v >= 0 ? '▲ +' : '▼ ';
+            return [
+              ` Variación: ${sign}${Math.abs(v).toLocaleString('es-AR')} u.`,
+              ` Captura: ${cap}% del crecimiento`
+            ];
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: '#f3f4f6' }, border: { display: false },
+        ticks: {
+          callback: v => v >= 1e6 ? (v/1e6).toFixed(1)+'M' : v >= 1e3 ? (v/1e3).toFixed(0)+'K' : v,
+          font: { size: 10 }, color: '#6b7280',
+        }
+      },
+      y: {
+        grid: { display: false }, border: { display: false },
+        ticks: {
+          font: { size: 11, weight: ctx => GROWTH_DATA.find(d=>d.prod===ctx.tick?.label)?.sie ? '700' : '400' },
+          color: ctx => {
+            const item = GROWTH_DATA.find(d => d.prod === (ctx.tick?.label));
+            return item?.sie ? '#8B1C1C' : '#374151';
+          },
+        }
+      }
+    }
+  },
+  plugins: [{
+    id: 'zeroLine',
+    afterDraw(chart) {
+      const ctx = chart.ctx;
+      const xScale = chart.scales.x;
+      const x = xScale.getPixelForValue(0);
+      const { top, bottom } = chart.chartArea;
+      ctx.save();
+      ctx.beginPath();
+      ctx.strokeStyle = '#9ca3af';
+      ctx.lineWidth = 1;
+      ctx.moveTo(x, top); ctx.lineTo(x, bottom);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }]
+});
+
+// Populate MAT growth table
+const matGrowthTbody = document.getElementById('matGrowthTable');
+const showInTable = GROWTH_DATA.filter(d => Math.abs(d.v25 - d.v24) >= 500 || d.sie);
+showInTable.sort((a,b) => (b.v25-b.v24)-(a.v25-a.v24));
+showInTable.forEach(d => {
+  const growth = d.v25 - d.v24;
+  const pctGrowth = d.v24 > 0 ? ((growth/d.v24)*100).toFixed(1) : '—';
+  const capture = (growth/MKT_GROWTH*100).toFixed(1);
+  const isPos = growth >= 0;
+  const varBadge = `<span class="mat-delta ${isPos?'up':'down'}">${isPos?'▲ +':'▼ '}${Math.abs(growth).toLocaleString('es-AR')}</span>`;
+  const pctBadge = d.v24 > 0 ? `<span class="mat-delta ${isPos?'up':'down'}">${isPos?'▲ +':'▼ '}${Math.abs(pctGrowth)}%</span>` : '—';
+  const capStyle = isPos ? 'color:var(--green);font-weight:700' : 'color:#dc2626;font-weight:600';
+  const capText = `<span style="${capStyle}">${isPos?'+':''}${capture}%</span>`;
+  // capture bar
+  const barW = Math.min(Math.abs(parseFloat(capture)) * 0.8, 80);
+  const barColor = isPos ? 'var(--sie)' : '#ef444466';
+  const capBar = `<div style="display:flex;align-items:center;gap:8px">${capText}<div style="height:6px;width:${barW}px;background:${barColor};border-radius:3px;flex-shrink:0"></div></div>`;
+
+  matGrowthTbody.innerHTML += `
+    <tr>
+      <td><div class="mat-prod ${d.sie?'sie-row':''}"><span class="dot" style="background:${d.sie?'#8B1C1C':'#9ca3af'}"></span>${d.prod}</div></td>
+      <td class="mat-val ${d.sie?'sie-val':''}">${d.v24.toLocaleString('es-AR')}</td>
+      <td class="mat-val ${d.sie?'sie-val':''}">${d.v25.toLocaleString('es-AR')}</td>
+      <td>${varBadge}</td>
+      <td>${pctBadge}</td>
+      <td>${capBar}</td>
+    </tr>`;
+});
+</script>
+</body>
+</html>
